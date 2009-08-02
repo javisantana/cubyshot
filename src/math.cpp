@@ -52,14 +52,14 @@ float mod(float a,float t)
 }
 
 //internal seed
-int seed = 1;
+unsigned int seed = 1;
 float rand01()
 {
   return 0.5f*(sfrand(&seed) + 1.0f);
 }
 
 //from iq
-float sfrand( int *seed )
+float sfrand(unsigned int *seed )
 {
     float res;
     seed[0] *= 16807;

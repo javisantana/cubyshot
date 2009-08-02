@@ -12,7 +12,7 @@
 #undef max
 #undef min
 // seed can be changed and set to magic value!
-extern int seed;
+extern unsigned int seed;
 
 float max(float a,float b);
 float min(float a,float b);
@@ -23,7 +23,7 @@ float pulse(float a,float b,float t);
 float clamp(float a,float b,float t);
 float _frac(float a);
 float mod(float a,float t);
-float sfrand( int *seed );
+float sfrand( unsigned int *seed );
 float randf( void );
 float rand01( void );
 ///return random number between 0 and i - 1

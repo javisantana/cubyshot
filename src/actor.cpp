@@ -1,7 +1,3 @@
-
-#include <windows.h>
-#include <gl/gl.h> 
-
 #include "actor.h"
 #include "renderables.h"
 
@@ -9,6 +5,7 @@
 
 
 
+actor actor_pool[MAX_ACTOR];
 
 
 void default_render(const actor* a)

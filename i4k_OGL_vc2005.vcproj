@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib user32.lib gdi32.lib"
 				OutputFile="exe/main_vc2005_deb.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -226,14 +226,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\src\actor.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\actor.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\config.h"
 				>
 			</File>
@@ -243,30 +235,6 @@
 			</File>
 			<File
 				RelativePath=".\src\intro.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\math.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\math.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\mzk.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\mzk.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\renderables.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\renderables.h"
 				>
 			</File>
 			<Filter
@@ -295,6 +263,70 @@
 							Name="VCCLCompilerTool"
 						/>
 					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="game"
+				>
+				<File
+					RelativePath=".\src\actor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\actor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\board.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\board.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\enemy.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\enemy.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\player.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\player.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="core"
+				>
+				<File
+					RelativePath=".\src\math.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\math.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mzk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\mzk.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\renderables.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\renderables.h"
+					>
 				</File>
 			</Filter>
 		</Filter>

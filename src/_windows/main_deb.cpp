@@ -209,7 +209,7 @@ int WINAPI WinMain( HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     intro_init();
 
-    mzk_init( myMuzik+22 );
+   /* mzk_init( myMuzik+22 );
 
     memcpy( myMuzik, wavHeader, 44 );
     if( !sndPlaySound( (const char*)&myMuzik, SND_ASYNC|SND_MEMORY ) )
@@ -218,6 +218,7 @@ int WINAPI WinMain( HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         MessageBox( 0, "mzk???", "error", MB_OK|MB_ICONEXCLAMATION );
         return( 0 );
     }
+	*/
 
     long to=timeGetTime();
     while( !done )

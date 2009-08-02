@@ -37,8 +37,8 @@ typedef struct actor_t
 
 #define MAX_ACTOR 512
 
-//extern actor actor_pool[MAX_ACTOR];
-
+extern actor actor_pool[MAX_ACTOR];
+const float dt = 0.02f;
 
 void ACTOR_init(actor*);
 void ACTOR_update(actor*, float dt);
