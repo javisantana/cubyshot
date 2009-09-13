@@ -10,6 +10,6 @@ void cube_w();
 void cube_init();
 void cube();
 void render_doids(int _seed);
-
+void quad_w();
 
 

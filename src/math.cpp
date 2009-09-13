@@ -109,7 +109,7 @@ float fbm(float x, float y)
   float amp = 0.5f;
   float res = 0.0f;
 
-  for(i = 0; i < 6; ++i)
+  for(i = 0; i < 4; ++i)
   {
     res += amp*perlin2d(x*step, y*step);
     amp *= 0.5f;
@@ -118,4 +118,15 @@ float fbm(float x, float y)
   return res;
 }
 
+int in_range(float x, float var, float p)
+{
+	var *= 0.5f;
+	return p <= (x + var) && 
+			p >= (x - var);
+}
 
+bool is_inside_2d(vec3f pos, vec3f margin, vec3f p)
+{
+	return in_range(pos[0], margin[0], p[0]) &&
+			in_range(pos[1], margin[1], p[1]);
+}

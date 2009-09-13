@@ -234,11 +234,11 @@ int WINAPI WinMain( HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
         intro_do( t );
 
-        if( t>(MZK_DURATION*1000) ) done = 1;
+       // if( t>(MZK_DURATION*1000) ) done = 1;
         SwapBuffers( info->hDC );
         }
 
-    sndPlaySound( 0, 0 );
+    //sndPlaySound( 0, 0 );
     window_end( info );
 
     return( 0 );

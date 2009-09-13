@@ -117,6 +117,7 @@ void cube()
 
 //---------------------------
 
+
 void quad()
 {
 	glBegin(GL_QUADS);
@@ -134,7 +135,13 @@ void quad()
 			glVertex3f(1.f/2,-1.f/2,0);
 		 glEnd();
 }
-
+void quad_w()
+{
+	quad();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);	
+    quad();
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
 
 
 //render between 0-1.0f
@@ -158,7 +165,7 @@ void render_doids(int _seed)
 		glPushMatrix();
 		glTranslatef(x, y + (h+ 0.01f)*nboxes, hg);
 		glScalef(w, h, hg);
-		cube();
+		cube_w();
 		glPopMatrix();
 		
 	}

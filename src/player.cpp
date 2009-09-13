@@ -1,6 +1,6 @@
 #include "actor.h"
 #include "renderables.h"
-
+#include "bullet.h"
 
 int pj_input[5];
 int pj_powering = 0;
@@ -16,16 +16,10 @@ float pj_ang = 0.0f;
 const int PJ_FIRE_RATE = 4;
 const int PJ_ENGINE_SMOKE_RATE = 6;
 
-void PLAYER_render()
+void ship_render()
 {
-	int i;
-	glPushMatrix();
-	glTranslatef(pj_pos[0], pj_pos[1], 0.0f);
-	glRotatef(pj_angle, 0.0f, 1.0f, 0.0f);
-	glColor4f(0.0f,0.0f,0.0f, 0.2f);
-	//center
 	cube_w();
-	for(i = 1; i < 3; ++i)
+	for(int i = 1; i < 3; ++i)
 	{
 		float s = 1.0f - ((float)i)/3.0f;
 		
@@ -37,8 +31,6 @@ void PLAYER_render()
 		cube_w();
 		glPopMatrix();
 
-
-
 		glPushMatrix();
 		glTranslatef(-d, - 1.0f +  s, 0.0f);
 		glScalef(s, s, s);
@@ -46,6 +38,16 @@ void PLAYER_render()
 		glPopMatrix();
 
 	}
+}
+void PLAYER_render()
+{
+	
+	glPushMatrix();
+	glTranslatef(pj_pos[0], pj_pos[1], 0.0f);
+	glRotatef(pj_angle, 0.0f, 1.0f, 0.0f);
+	glColor4f(0.0f,0.0f,0.0f, 0.2f);
+	//center
+	ship_render();
 		
 	glPopMatrix();
 }
@@ -53,8 +55,8 @@ void PLAYER_render()
 void PLAYER_update()
 {
 	//pj_vel[0] += ((pj_input[2] - pj_input[3])*20.0f - pj_vel[0])*40.5f*dt;
-	pj_vel[0] = (pj_input[2] - pj_input[3])*20.0f;// - pj_vel[0])*40.5f*dt;
-	pj_vel[1] = (pj_input[0] - pj_input[1])*20.0f;// - pj_vel[0])*40.5f*dt;
+	pj_vel[0] = (pj_input[2] - pj_input[3])*30.0f;// - pj_vel[0])*40.5f*dt;
+	pj_vel[1] = (pj_input[0] - pj_input[1])*30.0f;// - pj_vel[0])*40.5f*dt;
 	pj_pos[0] -= pj_vel[0]*dt;
 	pj_pos[1] += pj_vel[1]*dt;
 
@@ -70,20 +72,25 @@ void PLAYER_update()
 		int i;
 		for( i = 0; i < 3; ++i)
 		{
-			actor* a = ACTOR_get(actor_pool);
-			
-			a->pos[0] = pj_pos[0];
+			//actor* a = ACTOR_get(actor_pool);
+			vec3f v;
+			VMOV3(v,2.0f*i - 3.0f, 55.0f, 0.0f);
+			BULLET_shot(pj_pos, v, BULLET);
+			/*a->pos[0] = pj_pos[0];
 			a->pos[1] = pj_pos[1];
 			a->pos[2] = 0.0f;
 
 			a->vel[0] = i - 1.5f;
 			a->vel[0]*=2.0f;
 
-			a->vel[1] = 35.0f;
+			a->vel[1] = 55.0f;
 			a->vel[2] = 0.0f;
 			
+			a->collide_size[0] = 1.0f;
+			a->collide_size[1] = 1.0f;
 			a->type = BULLET;
-			//a->flags |= F_ACTIVE; 
+			*/
+			
 			pj_fire_cnt = PJ_FIRE_RATE;
 		}
 	}

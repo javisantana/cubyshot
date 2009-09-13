@@ -3,11 +3,18 @@
 #include "math.h"
 
 // actor - bullets, ships...
-enum { BULLET, ENEMY_1 };
+enum { BULLET, BULLET_ENEMY, //bullets
+
+       ENEMY_1 };
 
 #define F_ACTIVE 0x01
+#define F_COLLIDE_PLAYER 0x02 // collide with player
+#define F_COLLIDE_ENEMY 0x04 // collide with enemy
+#define F_BULLET 0x08
 
 #define IS_ACTIVE(a) ((a)->flags & F_ACTIVE)
+#define MAKE_PLAYER_HURT(a) ((a)->flags |= F_COLLIDE_PLAYER)
+#define MAKE_ENEMY_HURT(a) ((a)->flags |= F_COLLIDE_ENEMY)
 
 typedef struct actor_t
 {
@@ -19,6 +26,7 @@ typedef struct actor_t
 	float collide_size[2];
 	void (*update)(struct actor_t*, float);
 	void (*render)(const struct actor_t*);
+	float life;
 	float time;
 	float aux[3];
 	void* child;

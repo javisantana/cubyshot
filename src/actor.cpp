@@ -31,7 +31,9 @@ void default_update(actor* a, float dt)
 void ACTOR_reset(actor* a)
 {
 	a->flags = 0;
+	a->life = 1.0f;
 	a->update = default_update;
+
 	a->render = default_render;
 }
 
@@ -69,7 +71,7 @@ actor* ACTOR_get(actor* pool)
 		actor* a = &pool[i];
 		if(IS_ACTIVE(a) == 0)
 		{
-			a->flags |= F_ACTIVE;
+			a->flags = F_ACTIVE;
 			a->time = 0.0f;
 			return a;
 		}
@@ -104,12 +106,7 @@ void ACTOR_kill(actor* a)
 	ACTOR_reset(a);
 }
 
-static int in_range(float x, float var, float p)
-{
-	var *= 0.5f;
-	return p <= (x + var) && 
-			p >= (x - var);
-}
+
 
 int ACTOR_collide(const actor* a,const float* pos)
 {
