@@ -20,8 +20,23 @@
 #include "enemy.h"
 #include "particle.h"
 
+#include "boss.h"
 
 
+void test_calculate_boss()
+{	
+	int i;
+	for(i = 0; i < MAX_ACTOR; ++i)
+	{
+		actor* a = &actor_pool[i];
+		if(a->type == SHIP_FINAL_BOSS)
+		{
+			final_boss_init(a);
+		}
+	}
+
+
+}
 void check_collisions()
 {
 	int i;
@@ -114,7 +129,10 @@ void input()
 	pj_input[3] = GetAsyncKeyState(VK_RIGHT) ? 1:0;
 	pj_input[4] = GetAsyncKeyState('A') ? 1:0;
 	pj_old_powering = pj_powering;
-	pj_powering = GetAsyncKeyState('S') ? 1:0;	  	
+	pj_powering = GetAsyncKeyState('S') ? 1:0;	  
+
+	if(GetAsyncKeyState(VK_MBUTTON))
+		test_calculate_boss();
 }
 
 void update()

@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "math.h"
 
@@ -25,7 +25,7 @@ typedef struct actor_t
 	int type;
 	float collide_size[2];
 	void (*update)(struct actor_t*, float);
-	void (*render)(const struct actor_t*);
+	void (*render)(const struct actor_t*);	
 	float life;
 	float time;
 	float aux[3];

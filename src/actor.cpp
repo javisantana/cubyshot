@@ -33,7 +33,6 @@ void ACTOR_reset(actor* a)
 	a->flags = 0;
 	a->life = 1.0f;
 	a->update = default_update;
-
 	a->render = default_render;
 }
 
@@ -72,7 +71,7 @@ actor* ACTOR_get(actor* pool)
 		if(IS_ACTIVE(a) == 0)
 		{
 			a->flags = F_ACTIVE;
-			a->time = 0.0f;
+			a->time = 0.0f;			
 			return a;
 		}
 	}

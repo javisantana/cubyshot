@@ -6,6 +6,8 @@
 #include "bullet.h"
 #include "renderables.h"
 
+#include "boss.h"
+
 enum { FIXED_POS, RANDOM_POS};
 enum { TOP, SIDE_L, SIDE_R };
 
@@ -27,6 +29,7 @@ typedef struct
 	int num_cnt;
 
 	void (*update_fn)(struct actor_t*, float);
+	void (*render_fn)(const struct actor_t*);
 
 	float aux[3];
 	int ship_type;
@@ -141,7 +144,17 @@ void medium_update(actor* ac, float dt)
 	//a->ang += 4000.0f*dt;
 }
 
-
+void final_boss(enemy_pattern* ap)
+{
+	ap->sequence = FIXED_POS;
+	ap->side = TOP;
+	ap->next_cnt = ap->num_cnt = ap->group_num = 1;
+	ap->group_interval = 1;
+	ap->interval = 1;
+	ap->update_fn = final_boss_update;
+	ap->render_fn = final_boss_render;
+	ap->ship_type = SHIP_FINAL_BOSS;
+}
 void small_app(enemy_pattern* ap)
 {
 	 int sides[] = { SIDE_L, SIDE_R, TOP, TOP };
@@ -171,6 +184,7 @@ void small_app(enemy_pattern* ap)
 	ap->num_cnt = ap->group_interval;
 	ap->next_cnt = ap->group_num;
 	ap->update_fn = small_update;
+	ap->render_fn = ship_small_render;
 	ap->ship_type = SHIP_SMALL;
 }
 
@@ -200,7 +214,7 @@ void medium_app(enemy_pattern* ap)
 	ap->num_cnt = ap->group_interval;
 	ap->next_cnt = ap->group_num;
 	ap->update_fn = medium_update;
-
+	ap->render_fn = ship_small_render;
 	ap->ship_type =  SHIP_MEDIUM;
 }
 
@@ -225,7 +239,7 @@ void ENEMY_init(int* ship_types)
 	for(i = 0; i < ship_types[2]; ++i)
 	{
 		create_pattern(&patterns[i]);
-		small_app(&patterns[i]);
+		final_boss(&patterns[i]);
 		++enemy_patterns;
 	}	
 }
@@ -253,7 +267,9 @@ void emit(enemy_pattern* p, float* pos, float d, int type)
 
 	a->type = type;
 	a->update = p->update_fn;
-	a->render = ship_small_render;
+	a->render = p->render_fn;
+	if(a->type == SHIP_FINAL_BOSS)  //hack
+		final_boss_init(a);
 
 	
 	
@@ -336,7 +352,7 @@ int level_section = 0;
 int level_counter = 0;
 int LEVEL_SECTION_CNT = 2000;
 int level[][3] = { 
-	{ 1,1, 0 } , { 2, 0, 0 }, { 1, 1, 0 } , { 2, 2, 0 }, { 5, 3, 0 }
+	{ 1,0, 1} , { 2, 0, 0 }, { 0, 1, 0 } , { 1, 1, 0 }, { 0, 0, 0 }
 };
 
 void ENEMY_update()
@@ -352,4 +368,10 @@ void ENEMY_update()
 		emit_enemies();
 		emiter_cnt = 1;
 	}
+}
+
+void LEVEL_init()
+{
+  level_section = 0;
+  level_counter = 0;
 }

@@ -285,11 +285,43 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\bullet.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\bullet.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\city.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\city.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\enemy.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\src\enemy.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\palete.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\palete.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\particle.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\particle.h"
 					>
 				</File>
 				<File
@@ -300,6 +332,26 @@
 					RelativePath=".\src\player.h"
 					>
 				</File>
+				<File
+					RelativePath=".\src\random_ship.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\random_ship.h"
+					>
+				</File>
+				<Filter
+					Name="ia"
+					>
+					<File
+						RelativePath=".\src\boss.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\src\boss.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="core"
