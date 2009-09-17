@@ -85,3 +85,35 @@ void PART_explosion(float* pos, int n)
 	}
 
 }
+
+
+void PART_cube_destroy(float* pos, float s)
+{
+	int i,j,k;
+	int n = int(s*2.0f);
+	float s2 = s*0.5f;
+	for( i = 0;i < n;i++)
+	{
+		for( j = 0;j < n;j++)
+		{
+			for( k = 0;k < n;k++)
+			{	
+				actor* p = ACTOR_get(particle_pool);
+				p->update = PART_update;
+				p->render = PART_render;
+		
+				p->pos[0] = pos[0] + 0.1f*i - s2;
+				p->pos[1] = pos[1] + 0.1f*j - s2;
+				p->pos[2] = pos[2] + 0.1f*k - s2;
+
+				p->vel[0] = randf()*0.1f;
+				p->vel[1] = 0.f*rand01();
+				p->vel[2] = -0.1f*rand01();
+
+				p->aux[0] = 0.2f+ 0.6f*rand01();
+			}
+		}
+	
+
+	}
+}

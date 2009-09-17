@@ -63,7 +63,14 @@ void check_collisions()
 					actor* b = &actor_pool[j];				
 					if(IS_ACTIVE(b) && !(b->flags & F_BULLET))
 					{
-						// player bullets
+						if(b->type ==  SHIP_FINAL_BOSS)
+						{
+								//PART_damage(b->pos);
+								if(final_boss_collide(b, a))
+								{
+									ACTOR_kill(a);
+								}
+						} else						// player bullets
 						if(ACTOR_collide(b, a->pos))
 						{
 							if( b->type == SHIP_MEDIUM)
@@ -95,6 +102,7 @@ void check_collisions()
 								ACTOR_kill(b);
 								PART_explosion(b->pos);
 							}
+							
 							//kill bullet
 							ACTOR_kill(a);
 							

@@ -34,6 +34,7 @@ void ACTOR_reset(actor* a)
 	a->life = 1.0f;
 	a->update = default_update;
 	a->render = default_render;
+	a->type = 0;
 }
 
 void ACTOR_init(actor* pool)
