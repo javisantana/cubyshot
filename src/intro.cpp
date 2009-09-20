@@ -242,34 +242,48 @@ void input()
 {
 	if(input_delay < 0)
 	{
-		if(GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_RETURN))
+		if(GetAsyncKeyState('Z'))
 		{
-				MENU_show();
+				
 				if(game_state == INTRO )
 				{
+					MENU_show();
 					LEVEL_current = 1;
 					LEVEL_init(1);					
 					game_state = GAME;
 				}
 				else if (game_state == DEAD)
 				{
+					MENU_show();
 					LEVEL_init(1);
 					game_state = GAME;
 				}
-				else if(game_state == GAME)
-				{
-					game_state = PAUSE;
-				} 
 				else if(game_state == PAUSE)
 				{
+					MENU_show();
 					game_state = GAME;
 				} 
 				else if(game_state == INTER_LEVEL)
 				{
+					MENU_show();
 					LEVEL_init(++LEVEL_current);
 					game_state = GAME;
 				}
 				
+		}
+		if(GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_RETURN))
+		{
+			
+			if(game_state == GAME)
+			{
+					MENU_show();
+					game_state = PAUSE;
+			} 
+			else if(game_state == PAUSE)
+			{
+					MENU_show();
+					game_state = GAME;
+			} 
 		}
 		input_delay = 10;
 	}
@@ -282,7 +296,7 @@ void input()
 		pj_input[1] = GetAsyncKeyState(VK_DOWN) ? 1:0;
 		pj_input[2] = GetAsyncKeyState(VK_LEFT) ? 1:0;
 		pj_input[3] = GetAsyncKeyState(VK_RIGHT) ? 1:0;
-		pj_input[4] = GetAsyncKeyState('A') ? 1:0;
+		pj_input[4] = GetAsyncKeyState('Z') ? 1:0;
 		pj_old_powering = pj_powering;
 		pj_powering = GetAsyncKeyState('S') ? 1:0;	  
 
