@@ -43,3 +43,10 @@ void BULLET_shot(vec3f pos, vec3f vel, int type)
 	a->flags |= F_BULLET;
 
 }
+
+void BULLET_random_bullet(vec3f pos, vec3f vel)
+{
+		vec3f v;
+		VMOV3(v, vel[0]*rand01(), -20.0f, 0.0f);
+		BULLET_shot(pos,v,  BULLET_ENEMY);
+}

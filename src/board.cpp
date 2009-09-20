@@ -24,8 +24,8 @@ void BOARD_init()
 }
 void BOARD_update()
 {
-	board_pos[0] -= 0.03f;
-	board_pos[1] -= 0.015f;
+	board_pos[0] -= 0.14f;
+	board_pos[1] -= 0.04f;
 	board_pos[2] -= 0.010f;
 	
 	board_pos[0] = -board_y*mod(board_y, -board_pos[0]);
@@ -37,10 +37,10 @@ void BOARD_update()
 
 #include "city.h"
 
-void CLOUDS_render(int seed, float ss)
+void CLOUDS_render(int seed, float ss, int rows = 50)
 {
 	
-	for(int j = 0; j < 50; ++j)
+	for(int j = 0; j < rows; ++j)
 	{
 		for(int i = 0; i < 25; ++i)
 		{
@@ -79,6 +79,44 @@ void CLOUDS_render(int seed, float ss)
 	}
 
 }
+
+void BOARD_hide()
+{
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glLoadIdentity();	
+	glTranslatef(0.0f,0.0f, -40.0f);
+	//left
+	glPushMatrix();	
+	glTranslatef(-board_x, 0.0f, 0.0f);
+	glScalef(board_x, board_y, 1.0f);
+	glColor3f(1.0f,1.0f,1.0f);
+	quad();		
+	glPopMatrix();
+	//r
+	glPushMatrix();	
+	glTranslatef(board_x, 0.0f, 0.0f);
+	glScalef(board_x, board_y, 1.0f);
+	glColor3f(1.0f,1.0f,1.0f);	
+	quad();		
+	glPopMatrix();
+	//up
+	glPushMatrix();	
+	glTranslatef(0.0f, board_y, 0.0f);
+	glScalef(board_x*3.0f, board_y, 1.0f);
+	glColor3f(1.0f,1.0f,1.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	quad();		
+	glPopMatrix();
+
+	//down
+	glPushMatrix();	
+	glTranslatef(0.0f, -board_y, 0.0f);
+	glScalef(board_x*3.0f, board_y, 1.0f);
+	glColor3f(1.0f,1.0f,1.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	quad();		
+	glPopMatrix();
+}
 void BOARD_render()
 {
 	
@@ -115,16 +153,16 @@ void BOARD_render()
 	seed = 6;
 
 
-	set_pal_color(3, 0.1f);
+	set_pal_color(3, 0.4f);
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(-6.0f, 0.25f*board_y + board_pos[0], -15.0f);
-	CLOUDS_render(3, 0.5f);
+	CLOUDS_render(3, 0.5f, 60);
 	glPopMatrix();
 
 	
 	
-	set_pal_color(1, 0.03f);
+	set_pal_color(1, 0.05f);
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(-6.0f, 0.25f*board_y + board_pos[1], -15.0f);
@@ -133,7 +171,7 @@ void BOARD_render()
 	
 
 	
-	set_pal_color(0, 0.02f);
+	set_pal_color(0, 0.03f);
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(-6.0f, 0.25f*board_y + board_pos[2], -15.0f);
@@ -144,6 +182,13 @@ void BOARD_render()
 
 
 	seed = old_seed;
+
+	
+
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
 	return ;
 #if 0
 

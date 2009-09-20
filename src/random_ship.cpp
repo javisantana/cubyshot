@@ -5,14 +5,34 @@
 #include "random_ship.h"
 #include "renderables.h"
 #include "particle.h"
+#include "bullet.h"
 
 void ship_render(const struct random_ship* s); 
 
 void kamikaze_update(struct actor_t* a, float dt)
 {
 	MADD(a->pos, a->pos, dt, a->vel);
-	a->ang += a->aux[0] *dt;
-	a->vel[2]*=0.999f;
+	a->ang += a->aux[0]*dt;
+	a->aux[0]*=1.1f;
+	a->vel[2] = -20.0f*cosf(a->time+0.3f);
+	if(a->pos[2] > 0.0f)
+	{
+		if(a->count++%3 == 0)
+			for(int i = 0; i < 10; ++i)
+			{
+				vec3f vel;
+				float ang = a->time + linear(-PI, PI, float(i)/10.0f);
+				vel[0] = 20.0f*cosf(ang);
+				vel[1] = 20.0f*sinf(ang);
+				vel[2] = 0.0f;
+				BULLET_shot(a->pos, vel, BULLET_ENEMY);
+			}
+
+		if(a->pos[2] > 6.0f)
+		{
+			ACTOR_kill(a);
+		}
+	}
 }
 void kamikaze_render(const struct actor_t* a)
 {
@@ -29,6 +49,7 @@ void kamikaze_add(vec3f pos, float s)
 	actor* a = ACTOR_get(actor_pool);
 			
 	VMOV(a->pos, pos);
+	a->pos[2] -= 0.1f;
 	
 
 	a->vel[0] = 0.0f;
@@ -38,7 +59,7 @@ void kamikaze_add(vec3f pos, float s)
 	a->ang = 0.0;	
 	a->collide_size[0] = s;
 	a->collide_size[1] = s;
-	a->aux[0] = randf()*30.0f;
+	a->aux[0] = linear(20.0f, 30.0f,rand01());
 	
 
 	
@@ -47,7 +68,12 @@ void kamikaze_add(vec3f pos, float s)
 	
 }
 
-
+void SHIP_cell_pos(struct actor_t* a, int i, int j, vec3f pos)
+{
+	random_ship_t* s = (random_ship_t*)a->child;
+	VMOV3(pos, 1.0f*(i - (s->w >> 1)) , 1.0f*j, 0.0f);
+	VADD(pos, a->pos, pos);
+}
 void SHIP_update(struct actor_t* a)
 {
 	int i,j;
@@ -78,6 +104,7 @@ bool SHIP_collide(struct actor_t* a, vec3f pos)
 {
 		int i,j;
 		random_ship_t* s = (random_ship_t*)a->child;
+		s->hit-- ;
 		for( i = 0; i < s->w; ++i)
 		{
 			for( j = 0; j < s->h; ++j)
@@ -91,10 +118,13 @@ bool SHIP_collide(struct actor_t* a, vec3f pos)
 				{
 					if(s->celllife[i][j] > 0.0f)
 					{
-						s->cellsize[i][j] = s->cells[i][j]*1.3f;
+						s->cellsize[i][j] = s->cells[i][j]*1.2f;
 					}
 					//TODO: hard
-					s->celllife[i][j]-= 0.1f;
+					s->celllife[i][j]-= 0.01f;
+					s->hit = 7;
+
+					
 					return true;
 				}
 			}
@@ -157,10 +187,14 @@ void SHIP_generate(struct actor_t* a, int _seed, int x, int y)
 			}
 		}
 		//rotation
-		for( j = 0; j < s->h; ++j)
+		for( i = 0; i < s->w; ++i)
 		{
-			//if(!s->cells[s->w >> 1][j] && rand01() < 0.6f)
-			//s->cells[s->w >> 1][j] = 2;
+			if(s->cells[i][0] > 0.0f)
+			{
+				s->gun_first = i;
+				s->gun_last = s->w - i - 1;
+				break;
+			}			
 		}
 		a->child = s;
 		seed = old_seed ;
@@ -174,7 +208,8 @@ void ship_render(const struct random_ship* s)
 	//glDisable(GL_CULL_FACE);
 	
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4f(0.0f,0.0f,0.0f, 0.1f);
+	
+		
 
 	glPushMatrix();
 
@@ -197,7 +232,10 @@ void ship_render(const struct random_ship* s)
 						if(d > 0.01f)
 							glColor4f(0.1f+d*1.5f,0.0f,0.0f, 0.4f);
 						else
-							glColor4f(0.0f,0.0f,0.0f, 0.1f);
+							if(s->hit > 0 )
+								glColor4f(0.6f,0.6f,0.6f, 0.4f);
+							else
+								glColor4f(0.0f,0.0f,0.0f, 0.1f);
 						glPushMatrix();
 						float ss = s->cellsize[i][j];
 						glTranslatef(2.0f*(i - (s->w >> 1)) , 2.0f*j, 0.0f);

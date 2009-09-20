@@ -13,6 +13,9 @@
 #include "../config.h"
 #include "../intro.h"
 #include "../mzk.h"
+#include "../font.h"
+#include "../snd/sound.h"
+
 
 //----------------------------------------------------------------------------
 
@@ -53,19 +56,7 @@ static WININFO wininfo = {  0,0,0,0,0,
                             };
 
 
-static const int wavHeader[11] = {
-    0x46464952, 
-    MZK_NUMSAMPLES*2+36, 
-    0x45564157, 
-    0x20746D66, 
-    16, 
-    WAVE_FORMAT_PCM|(MZK_NUMCHANNELS<<16), 
-    MZK_RATE, 
-    MZK_RATE*MZK_NUMCHANNELS*sizeof(short), 
-    (MZK_NUMCHANNELS*sizeof(short))|((8*sizeof(short))<<16),
-    0x61746164, 
-    MZK_NUMSAMPLES*sizeof(short)
-    };
+
 
 //==============================================================================================
 
@@ -77,20 +68,13 @@ static LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		return( 0 );
 
 	// boton x o pulsacion de escape
-	if( uMsg==WM_CLOSE || uMsg==WM_DESTROY || (uMsg==WM_KEYDOWN && wParam==VK_ESCAPE) )
+	if( uMsg==WM_CLOSE || uMsg==WM_DESTROY )
 		{
 		PostQuitMessage(0);
         return( 0 );
 		}
 
-    if( uMsg==WM_CHAR )
-        {
-        if( wParam==VK_ESCAPE )
-            {
-            PostQuitMessage(0);
-            return( 0 );
-            }
-        }
+    
 
     return( DefWindowProc(hWnd,uMsg,wParam,lParam) );
 }
@@ -158,7 +142,7 @@ static int window_init( WININFO *info )
     rec.bottom = YRES;
     AdjustWindowRect( &rec, dwStyle, 0 );
 
-    info->hWnd = CreateWindowEx( dwExStyle, wc.lpszClassName, "avada kedabra!", dwStyle,
+    info->hWnd = CreateWindowEx( dwExStyle, wc.lpszClassName, "cubyshot", dwStyle,
                                (GetSystemMetrics(SM_CXSCREEN)-rec.right+rec.left)>>1,
                                (GetSystemMetrics(SM_CYSCREEN)-rec.bottom+rec.top)>>1,
                                rec.right-rec.left, rec.bottom-rec.top, 0, 0, info->hInstance, 0 );
@@ -208,6 +192,12 @@ int WINAPI WinMain( HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     intro_init();
+
+	init_font(info->hDC);
+
+	SOUND_init();
+	sound_precache();
+	
 
    /* mzk_init( myMuzik+22 );
 

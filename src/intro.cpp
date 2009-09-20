@@ -22,6 +22,17 @@
 
 #include "boss.h"
 
+#include "menu.h"
+
+#include "snd/sound.h"
+#include "snd/effects.h"
+
+
+
+int game_state = INTRO;
+int game_counter = 0;
+
+int input_delay = 0;
 
 void test_calculate_boss()
 {	
@@ -39,6 +50,7 @@ void test_calculate_boss()
 }
 void check_collisions()
 {
+	
 	int i;
 	int j;
 	//remove bullets 
@@ -81,7 +93,7 @@ void check_collisions()
 								} 
 								else
 								{
-									PART_damage(b->pos);
+									PART_damage(b->pos, 1.0f);
 								}
 								b->life -= 0.1f; //3 bullets
 								if(b->life < 0.0f)
@@ -95,12 +107,14 @@ void check_collisions()
 									VADD(v, b->pos, v);
 									PART_explosion(b->pos);
 									ACTOR_kill(b);
+									EFFECTS_medium_explosion();
 								}
 							}
 							else if(b->type ==  SHIP_SMALL)
 							{
 								ACTOR_kill(b);
 								PART_explosion(b->pos);
+								EFFECTS_small_explosion();
 							}
 							
 							//kill bullet
@@ -115,10 +129,13 @@ void check_collisions()
 			} 
 			else if(a->flags & F_COLLIDE_PLAYER)
 			{
+				if(game_state == INTRO) //hack
+					return; 
 				vec3f margin;
 				VMOV3(margin, 1.5f, 3.0f, 1.0f);
 				if(is_inside_2d(pj_pos, margin, a->pos))
 				{
+					pj_life -= 0.21f;
 					PART_explosion(pj_pos);
 					ACTOR_kill(a);
 				}
@@ -128,28 +145,76 @@ void check_collisions()
 
 }
 
+
+
+
 // --- input 
 void input()
 {
-	pj_input[0] = GetAsyncKeyState(VK_UP) ? 1:0;
-	pj_input[1] = GetAsyncKeyState(VK_DOWN) ? 1:0;
-	pj_input[2] = GetAsyncKeyState(VK_LEFT) ? 1:0;
-	pj_input[3] = GetAsyncKeyState(VK_RIGHT) ? 1:0;
-	pj_input[4] = GetAsyncKeyState('A') ? 1:0;
-	pj_old_powering = pj_powering;
-	pj_powering = GetAsyncKeyState('S') ? 1:0;	  
+	if(input_delay < 0)
+	{
+		if(GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_RETURN))
+		{
+				MENU_show();
+				if(game_state == INTRO)
+				{
+					
+					LEVEL_init(1);
+					game_state = GAME;
+				}
+				else if(game_state == GAME)
+				{
+					game_state = PAUSE;
+				} 
+				else 
+				{
+					game_state = GAME;
+				}
+				
+		}
+		input_delay = 10;
+	}
+	input_delay--;
 
-	if(GetAsyncKeyState(VK_MBUTTON))
-		test_calculate_boss();
+	
+	if(game_state == GAME)
+	{
+		pj_input[0] = GetAsyncKeyState(VK_UP) ? 1:0;
+		pj_input[1] = GetAsyncKeyState(VK_DOWN) ? 1:0;
+		pj_input[2] = GetAsyncKeyState(VK_LEFT) ? 1:0;
+		pj_input[3] = GetAsyncKeyState(VK_RIGHT) ? 1:0;
+		pj_input[4] = GetAsyncKeyState('A') ? 1:0;
+		pj_old_powering = pj_powering;
+		pj_powering = GetAsyncKeyState('S') ? 1:0;	  
+
+		if(GetAsyncKeyState(VK_MBUTTON))
+			test_calculate_boss();
+
+		
+	}
 }
 
 void update()
 {
+	
+	if(game_state == PAUSE)
+		return;
 	PLAYER_update();
-	ENEMY_update();
+	LEVEL_update();
 	ACTOR_update(actor_pool, dt);	
 	ACTOR_update(particle_pool, dt);
-	BOARD_update();
+	BOARD_update();	
+	check_collisions();
+
+	if(game_state == INTRO)
+	{
+		game_counter++;
+		if(game_counter % 500 == 0)
+		{
+			test_calculate_boss();
+		}
+	}
+
 }
 
 void render()
@@ -160,17 +225,19 @@ void render()
 	glTranslatef(0.0f,0.0f, -40.0f);
 	glColor3f(1.0f,1.0f,1.0f);
 
-	BOARD_render();
+	
 
 	glEnable (GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0.0f, 0.0f, 0.0f, 0.1f);
-	PLAYER_render();
+	BOARD_render();
+	if(game_state != INTRO)
+		PLAYER_render();
 
 	ACTOR_render(actor_pool);
 	ACTOR_render(particle_pool);
 
-	check_collisions();
+	
 	
 }
 //----------------------------------------
@@ -198,20 +265,39 @@ void intro_init( void )
 	BOARD_init();
 	
 	t0 =  timeGetTime();
+
+	
 }
+
+
+
+void sound_precache()
+{
+	EFFECTS_init();
+	//SOUND_play_song(0);
+}
+
 
 
 long DT = 20;
 void intro_do( long itime )
 {
 	t1 = timeGetTime();
+
+	input();
 	while((t1 - t0) > DT )
 	{
-   		input();
+
+   		
 		update();
+		MENU_update();		
+		
 		t0 += DT;
 	}
+	
 	render();
+	MENU_render();
+	BOARD_hide();
     
 }
 

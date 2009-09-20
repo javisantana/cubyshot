@@ -42,7 +42,7 @@ void PART_render(const actor* a)
 	
 	//glDisable(GL_BLEND);
 }
-void PART_damage(float* pos)
+void PART_damage(float* pos, float velmul)
 {
 	int i;
 	for( i = 0;i < 5;i++)
@@ -52,9 +52,9 @@ void PART_damage(float* pos)
 		p->render = PART_render;
 	
 		VMOV(p->pos, pos);
-		VMOV3(p->vel, randf()*5.0f, rand01()*55.0f, randf()*2.0f);
+		VMOV3(p->vel, randf()*5.0f, velmul*rand01()*55.0f, randf()*2.0f);
 
-		p->aux[0] = 0.3f+ 0.2f*rand01(); //aux[0] life
+		p->aux[0] = 0.1f+ 0.2f*rand01(); //aux[0] life
 
 	}
 }
@@ -84,6 +84,14 @@ void PART_explosion(float* pos, int n)
 
 	}
 
+}
+
+actor* PART_get()
+{
+	actor* p = ACTOR_get(particle_pool);
+		p->update = PART_update;
+		p->render = PART_render;
+		return p;
 }
 
 

@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minifmod", "minifmod.vcproj", "{F6349BCB-1908-4040-A77C-E277964DCFDF}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcproj", "{CECDEAF7-394B-4089-9BB4-883F4C5D3C71}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F6349BCB-1908-4040-A77C-E277964DCFDF} = {F6349BCB-1908-4040-A77C-E277964DCFDF}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{F6349BCB-1908-4040-A77C-E277964DCFDF}.Debug.ActiveCfg = Debug|Win32
+		{F6349BCB-1908-4040-A77C-E277964DCFDF}.Debug.Build.0 = Debug|Win32
+		{F6349BCB-1908-4040-A77C-E277964DCFDF}.Release.ActiveCfg = Release|Win32
+		{F6349BCB-1908-4040-A77C-E277964DCFDF}.Release.Build.0 = Release|Win32
+		{CECDEAF7-394B-4089-9BB4-883F4C5D3C71}.Debug.ActiveCfg = Debug|Win32
+		{CECDEAF7-394B-4089-9BB4-883F4C5D3C71}.Debug.Build.0 = Debug|Win32
+		{CECDEAF7-394B-4089-9BB4-883F4C5D3C71}.Release.ActiveCfg = Release|Win32
+		{CECDEAF7-394B-4089-9BB4-883F4C5D3C71}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

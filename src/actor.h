@@ -28,6 +28,7 @@ typedef struct actor_t
 	void (*render)(const struct actor_t*);	
 	float life;
 	float time;
+	int count;
 	float aux[3];
 	void* child;
 	//float ang;

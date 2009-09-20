@@ -5,6 +5,7 @@
 #include "board.h"
 #include "bullet.h"
 #include "renderables.h"
+#include "player.h"
 
 #include "boss.h"
 
@@ -49,6 +50,43 @@ int enemy_patterns = 0;
 
 
 extern void ship_render();
+
+
+void ship_medium_render(const actor* a)
+{
+
+	GLfloat density = 0.02f;
+	GLfloat fogColor[4] = {1.0f, 1.0f, 1.0f, 1.0f}; 
+
+	glFogi (GL_FOG_MODE, GL_EXP2);	
+	glFogfv (GL_FOG_COLOR, fogColor);
+	glFogf (GL_FOG_DENSITY, density);
+	glHint (GL_FOG_HINT, GL_NICEST);
+
+	glEnable(GL_FOG);
+	glPushMatrix();
+	
+	glColor4f(0.0f,0.0f,0.0f, 0.2f);	
+	glTranslatef(a->pos[0], a->pos[1], a->pos[2]);	
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, -50.0f);	
+		glScalef(2.0f,2.0f,50.0f);
+		cube_w();
+		glPopMatrix();
+	glDisable(GL_FOG);
+	
+	glRotatef(a->ang, 0.0f, 0.0f, 1.0f);	
+	glScalef(1.0f,1.0f,1.0f);	
+	cube_w();
+	glTranslatef(1.5f, 0.0f, 0.0f);
+	glScalef(1.0f, 0.2f, 0.2f);
+	cube_w();
+	glPopMatrix();
+
+	
+
+}
+
 void ship_small_render(const actor* a)
 {
 	glPushMatrix();
@@ -139,9 +177,23 @@ void medium_update(actor* ac, float dt)
 	ac->vel[0] = a*cosf(ac->ang);
 	ac->vel[1] = a*sinf(ac->ang);
 	*/
-	ac->vel[1] = -10.0f;
+	ac->vel[1] = -3.0f;
 	MADD(ac->pos, ac->pos, dt, ac->vel);
-	//a->ang += 4000.0f*dt;
+
+	ac->ang = ac->aux[2]*45.0f + -90.0f - 45.0f*sin(ac->time*0.25f);	
+
+	if(ac->count%20 == 0 && ac->count & 0x80)
+	{
+		vec3f v;
+		//VMOV3(v, ac->vel[0]*rand01(), -20.0f, 0.0f);
+		v[0] = 20.0f*cosf(ac->ang*DEG2RAD);
+		v[1] = 20.0f*sinf(ac->ang*DEG2RAD);
+		v[2] = 0.0f;
+		BULLET_shot(ac->pos,v,  BULLET_ENEMY);
+	}
+	ac->count = ac->count++ & 0xFF;
+
+
 }
 
 void final_boss(enemy_pattern* ap)
@@ -192,30 +244,26 @@ void medium_app(enemy_pattern* ap)
 {
 	 
 	 ap->side = TOP;
-	 switch (randi(4)) {
-      case 0:
-        ap->group_num = 3 + randi(3);
-        ap->group_interval = 72 + randi(15);
-        ap->interval = 35 +randi(5);
+	 switch (randi(2)) {
+      case 0:       
+		ap->group_num = 3 + randi(3);
+        ap->group_interval = 256 + randi(10);
+        ap->interval = 35 + randi(5);       
+		ap->sequence = FIXED_POS;
         break;
-      case 1:
+      case 1:      
 		ap->group_num = 1 + randi(2);
-        ap->group_interval = 56 + randi(10);
-        ap->interval = 30 + randi(5);        
-        break;
-      case 2:
-      case 3:
-		ap->group_num = 2 + randi(2);
-        ap->group_interval = 45 + randi(20);
-        ap->interval = 35 + randi(5);     
+        ap->group_interval = 200 + randi(20);
+        ap->interval = 100 + randi(50);     
        break;
     }
 
 	ap->num_cnt = ap->group_interval;
 	ap->next_cnt = ap->group_num;
 	ap->update_fn = medium_update;
-	ap->render_fn = ship_small_render;
+	ap->render_fn = ship_medium_render;
 	ap->ship_type =  SHIP_MEDIUM;
+	ap->aux[1] = randf()*45.0f; //start ang
 }
 
 void ENEMY_init(int* ship_types)
@@ -224,22 +272,22 @@ void ENEMY_init(int* ship_types)
 	enemy_patterns = 0;
 	for(i = 0; i < ship_types[0]; ++i)
 	{
-		create_pattern(&patterns[i]);
-		small_app(&patterns[i]);
+		create_pattern(&patterns[enemy_patterns]);
+		small_app(&patterns[enemy_patterns]);
 		++enemy_patterns;
 	}	
 
 	for(i = 0; i < ship_types[1]; ++i)
 	{
-		create_pattern(&patterns[i]);
-		medium_app(&patterns[i]);
+		create_pattern(&patterns[enemy_patterns]);
+		medium_app(&patterns[enemy_patterns]);
 		++enemy_patterns;
 	}	
 
 	for(i = 0; i < ship_types[2]; ++i)
 	{
-		create_pattern(&patterns[i]);
-		final_boss(&patterns[i]);
+		create_pattern(&patterns[enemy_patterns]);
+		final_boss(&patterns[enemy_patterns]);
 		++enemy_patterns;
 	}	
 }
@@ -264,6 +312,7 @@ void emit(enemy_pattern* p, float* pos, float d, int type)
 	a->collide_size[0] = 1.0f;
 	a->collide_size[1] = 1.0f;
 	a->aux[1] = p->aux[1];
+	a->aux[2] = rand01();
 
 	a->type = type;
 	a->update = p->update_fn;
@@ -351,17 +400,31 @@ int emiter_cnt = 1;
 int level_section = 0;
 int level_counter = 0;
 int LEVEL_SECTION_CNT = 2000;
-int level[][3] = { 
-	{ 1,0, 1} , { 2, 0, 0 }, { 0, 1, 0 } , { 1, 1, 0 }, { 0, 0, 0 }
+int level_current = 0;
+#define MAX_LEVEL_SECTION 5
+int level[][MAX_LEVEL_SECTION][3] = { 
+	{{ 2,0, 1} , { 2, 0, 0 }, { 0, 1, 0 } , { 1, 1, 0 }, { 0, 0, 1 } }, // level
+	{{ 1,1, 0} , { 2, 0, 0 }, { 0, 1, 0 } , { 1, 1, 0 }, { 0, 0, 1 } }
 };
 
-void ENEMY_update()
+void LEVEL_update()
 {
 	if(level_counter-- == 0)
 	{
-		ENEMY_init(level[level_section]);
-		level_section++;
 		level_counter = LEVEL_SECTION_CNT;
+		if(level_section < MAX_LEVEL_SECTION)
+		{
+			ENEMY_init(level[level_current][level_section]);
+		}
+		else 
+		{
+			//reset patterns
+			int empty[] = {0,0,0};
+			ENEMY_init(empty);
+			
+		}
+		level_section++;
+		
 	}
 	if(emiter_cnt-- == 0)
 	{
@@ -370,8 +433,11 @@ void ENEMY_update()
 	}
 }
 
-void LEVEL_init()
+void LEVEL_init(int level)
 {
   level_section = 0;
   level_counter = 0;
+  level_current = level;
+  ACTOR_init(actor_pool);
+  PLAYER_init();
 }

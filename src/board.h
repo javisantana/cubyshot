@@ -10,3 +10,4 @@ int BOARD_inside(float* p);
 void BOARD_update();
 void BOARD_render();
 void BOARD_init();
+void BOARD_hide();

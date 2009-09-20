@@ -35,6 +35,7 @@ void ACTOR_reset(actor* a)
 	a->update = default_update;
 	a->render = default_render;
 	a->type = 0;
+	a->count = 0;
 }
 
 void ACTOR_init(actor* pool)
@@ -76,6 +77,7 @@ actor* ACTOR_get(actor* pool)
 			return a;
 		}
 	}
+	return &pool[MAX_ACTOR - 1];
 	return 0;
 }
 

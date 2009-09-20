@@ -9,6 +9,7 @@
 #define PI 3.141516f
 
 #define RAD2DEG (180.0f/PI)
+#define DEG2RAD (PI/180.0f)
 #undef max
 #undef min
 // seed can be changed and set to magic value!
