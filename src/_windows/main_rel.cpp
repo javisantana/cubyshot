@@ -9,6 +9,10 @@
 #include "../intro.h"
 #include "../mzk.h"
 #include "../config.h"
+#include "../font.h"
+#include "../snd/sound.h"
+
+#define SETRESOLUTION
 
 static const int wavHeader[11] = {
     0x46464952, 
@@ -56,23 +60,28 @@ static DEVMODE screenSettings = { {0},
 
 static short myMuzik[MZK_NUMSAMPLESC+22];
 
-void entrypoint( void )
+int WINAPI WinMain( HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
 {              
     // full screen
     #ifdef SETRESOLUTION
-    if( ChangeDisplaySettings(&screenSettings,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL) return;
+   // if( ChangeDisplaySettings(&screenSettings,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL) return 0;
     ShowCursor( 0 );
     #endif
     // create window
     HWND hWnd = CreateWindow( "static",0,WS_POPUP|WS_VISIBLE|WS_MAXIMIZE,0,0,0,0,0,0,0,0);
     HDC hDC = GetDC(hWnd);
     // initalize opengl
-    if( !SetPixelFormat(hDC,ChoosePixelFormat(hDC,&pfd),&pfd) ) return;
+    if( !SetPixelFormat(hDC,ChoosePixelFormat(hDC,&pfd),&pfd) ) return 0;
     HGLRC hRC = wglCreateContext(hDC);
     wglMakeCurrent(hDC,hRC);
 
 	// init intro
 	intro_init();
+
+	init_font(hDC);
+
+	SOUND_init();
+	sound_precache();
 
 	// calculate music
 	/*
@@ -99,5 +108,6 @@ void entrypoint( void )
     sndPlaySound(0,0);
 
     ExitProcess(0);
+	return 0;
 }
 

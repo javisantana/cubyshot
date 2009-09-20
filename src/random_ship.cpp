@@ -7,6 +7,8 @@
 #include "particle.h"
 #include "bullet.h"
 
+#include "snd/effects.h"
+
 void ship_render(const struct random_ship* s); 
 
 void kamikaze_update(struct actor_t* a, float dt)
@@ -30,6 +32,7 @@ void kamikaze_update(struct actor_t* a, float dt)
 
 		if(a->pos[2] > 6.0f)
 		{
+			EFFECTS_small_explosion();
 			ACTOR_kill(a);
 		}
 	}
@@ -90,6 +93,7 @@ void SHIP_update(struct actor_t* a)
 					VMOV3(cellpos, 1.0f*(i - (s->w >> 1)) , 1.0f*j, 0.0f);
 					VADD(cellpos, a->pos, cellpos);
 					kamikaze_add(cellpos, s->cells[i][j]*0.5f);
+					EFFECTS_medium_explosion();
 					s->cells[i][j] = 0.0f; //kill cell
 				} 
 				else if(s->cellsize[i][j] > s->cells[i][j])

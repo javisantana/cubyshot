@@ -8,6 +8,8 @@
 #include "player.h"
 
 #include "boss.h"
+#include "palete.h"
+#include "snd/sound.h"
 
 enum { FIXED_POS, RANDOM_POS};
 enum { TOP, SIDE_L, SIDE_R };
@@ -34,6 +36,7 @@ typedef struct
 
 	float aux[3];
 	int ship_type;
+	int count;
 
 
 } enemy_pattern;
@@ -51,7 +54,58 @@ int enemy_patterns = 0;
 
 extern void ship_render();
 
+void ship_medium_render_mobile(const actor* a)
+{
+	glPushMatrix();
+	
+	glColor4f(0.0f,0.0f,0.0f, 0.2f);	
+	glTranslatef(a->pos[0], a->pos[1], a->pos[2]);	
 
+	glPushMatrix();
+		glScalef(0.4f,0.4f,0.4f);
+		cube_w();
+	glPopMatrix();
+
+	glPushMatrix();
+		glTranslatef(1.5f, 0.9f, -0.5f);	
+		glScalef(1.4f,1.4f,0.2f);
+		cube_w();
+
+		
+
+	glPopMatrix();
+	//cañon
+	glPushMatrix();
+		glScalef(0.4f,0.4f,0.4f);	
+		glTranslatef(3.5f, 0.9f, 0.0f);
+		glRotatef(a->ang, 0.0f, 0.0f, 1.0f);	
+		glScalef(1.0f,1.0f,1.0f);	
+		cube_w();
+		
+	glPopMatrix();		
+		
+
+	glPushMatrix();
+		glTranslatef(-1.5f, 0.9f, -0.5f);	
+		glScalef(1.4f,1.4f,0.2f);
+		cube_w();
+	glPopMatrix();
+
+	glPushMatrix();
+		glScalef(0.4f,0.4f,0.4f);	
+		glTranslatef(-3.5f, 0.9f, 0.0f);
+		glRotatef(a->ang, 0.0f, 0.0f, 1.0f);	
+		glScalef(1.0f,1.0f,1.0f);	
+		cube_w();		
+	glPopMatrix();
+
+
+
+	glPopMatrix();
+
+
+
+}
 void ship_medium_render(const actor* a)
 {
 
@@ -148,7 +202,23 @@ void small_update(actor* ac, float dt)
 	//ac->vel[1] = a*sinf(ac->ang);
 
 
-	ac->ang = ac->aux[0] + clamp(0, 2*PI, 40.0f*t - 3.0f)* ac->aux[1];
+	ac->ang = ac->aux[0];// + clamp(0.0f, 2*PI, 40.0f*t - 3.0f)* ac->aux[1];
+	
+	switch(ac->count)
+	{
+		case 0:
+			 ac->ang += clamp(0.0f, 2*PI, 40.0f*t - 3.0f)* ac->aux[1];
+			 break;
+		case 1:
+			///recto;
+			break;
+		case 2:
+		case 3:
+			 ac->ang += t* ac->aux[2]*7.0f;
+
+
+	}
+	
 	ac->vel[0] = 20.0f*cosf(ac->ang);
 	ac->vel[1] = 20.0f*sinf(ac->ang);
 	
@@ -165,24 +235,38 @@ void small_update(actor* ac, float dt)
 	}
 }
 
-
+void medium_update_mobile(actor* ac, float dt)
+{
+	float t = ac->time/10.0f;
+	ac->vel[1] = -3.0f;
+	//MADD(ac->pos, ac->pos, dt, ac->vel);
+	float inc = 0.3f*cos(10.0f*t);
+	ac->pos[1] -= inc;
+	if(inc > 0.29f && ac->count == 0)
+	{	
+		int n = 3 + randi(5);
+		for(int j = 0; j < n; ++j)
+		{
+					vec3f vel;
+					float ang = -0.5f*PI - linear(-PI/2.0f, PI/2.0f, float(j)/float(n));
+					vel[0] = 15.0f*cosf(ang);
+					vel[1] = 15.0f*sinf(ang);
+					vel[2] = 0.0f;
+					BULLET_random_bullet(ac->pos,vel);
+		}
+		ac->count = 1;
+	}
+}
 
 void medium_update(actor* ac, float dt)
 {
 	float t = ac->time/10.0f;
-	//ac->vel[1] = -30.0f*( smoothstep(0.4f,0.5f, 0.5f*(cosf(t*2.0f*PI))) - 0.5f);
-	/*float x = cosf(t*2.0f*PI);
-	float a = 10.0f*x*x*x;
-		
-	ac->vel[0] = a*cosf(ac->ang);
-	ac->vel[1] = a*sinf(ac->ang);
-	*/
 	ac->vel[1] = -3.0f;
 	MADD(ac->pos, ac->pos, dt, ac->vel);
 
 	ac->ang = ac->aux[2]*45.0f + -90.0f - 45.0f*sin(ac->time*0.25f);	
 
-	if(ac->count%20 == 0 && ac->count & 0x80)
+	if(ac->count%15 == 0 && ac->count & 0x80)
 	{
 		vec3f v;
 		//VMOV3(v, ac->vel[0]*rand01(), -20.0f, 0.0f);
@@ -193,10 +277,9 @@ void medium_update(actor* ac, float dt)
 	}
 	ac->count = ac->count++ & 0xFF;
 
-
 }
 
-void final_boss(enemy_pattern* ap)
+void final_boss_ap(enemy_pattern* ap)
 {
 	ap->sequence = FIXED_POS;
 	ap->side = TOP;
@@ -207,6 +290,7 @@ void final_boss(enemy_pattern* ap)
 	ap->render_fn = final_boss_render;
 	ap->ship_type = SHIP_FINAL_BOSS;
 }
+
 void small_app(enemy_pattern* ap)
 {
 	 int sides[] = { SIDE_L, SIDE_R, TOP, TOP };
@@ -238,32 +322,43 @@ void small_app(enemy_pattern* ap)
 	ap->update_fn = small_update;
 	ap->render_fn = ship_small_render;
 	ap->ship_type = SHIP_SMALL;
+	ap->count = randi(4);
 }
 
 void medium_app(enemy_pattern* ap)
 {
 	 
 	 ap->side = TOP;
-	 switch (randi(2)) {
+	 switch (randi(3)) {
       case 0:       
 		ap->group_num = 3 + randi(3);
         ap->group_interval = 256 + randi(10);
         ap->interval = 35 + randi(5);       
 		ap->sequence = FIXED_POS;
+		ap->update_fn = medium_update;
+		ap->render_fn = ship_medium_render;
         break;
       case 1:      
 		ap->group_num = 1 + randi(2);
         ap->group_interval = 200 + randi(20);
-        ap->interval = 100 + randi(50);     
+        ap->interval = 100 + randi(50);    
+		ap->update_fn = medium_update;
+		ap->render_fn = ship_medium_render;
+	  case 2:
+		ap->group_num = 1 + randi(2);
+        ap->group_interval = 200 + randi(20);
+        ap->interval = 45 + randi(50);    
+		ap->update_fn = medium_update_mobile;
+		ap->render_fn = ship_medium_render_mobile;
+		ap->sequence = RANDOM_POS;
        break;
     }
 
 	ap->num_cnt = ap->group_interval;
 	ap->next_cnt = ap->group_num;
-	ap->update_fn = medium_update;
-	ap->render_fn = ship_medium_render;
+
 	ap->ship_type =  SHIP_MEDIUM;
-	ap->aux[1] = randf()*45.0f; //start ang
+	ap->aux[1] = randf()*95.0f; //start ang
 }
 
 void ENEMY_init(int* ship_types)
@@ -286,8 +381,9 @@ void ENEMY_init(int* ship_types)
 
 	for(i = 0; i < ship_types[2]; ++i)
 	{
+		pal_change_to(0);
 		create_pattern(&patterns[enemy_patterns]);
-		final_boss(&patterns[enemy_patterns]);
+		final_boss_ap(&patterns[enemy_patterns]);
 		++enemy_patterns;
 	}	
 }
@@ -319,6 +415,12 @@ void emit(enemy_pattern* p, float* pos, float d, int type)
 	a->render = p->render_fn;
 	if(a->type == SHIP_FINAL_BOSS)  //hack
 		final_boss_init(a);
+
+	if(a->type == SHIP_SMALL)
+	{
+		a->count = p->count;
+		
+	}
 
 	
 	
@@ -380,7 +482,7 @@ void emit_enemies()
 				create_pattern(p);	
 				if(p->ship_type ==  SHIP_MEDIUM)
 					medium_app(p);
-				else
+				else if(p->ship_type ==  SHIP_SMALL)
 					small_app(p);
 			}
 			else
@@ -399,12 +501,15 @@ int emiter_cnt = 1;
 
 int level_section = 0;
 int level_counter = 0;
-int LEVEL_SECTION_CNT = 2000;
+int LEVEL_SECTION_CNT = 1000;
 int level_current = 0;
 #define MAX_LEVEL_SECTION 5
 int level[][MAX_LEVEL_SECTION][3] = { 
 	{{ 2,0, 1} , { 2, 0, 0 }, { 0, 1, 0 } , { 1, 1, 0 }, { 0, 0, 1 } }, // level
-	{{ 1,1, 0} , { 2, 0, 0 }, { 0, 1, 0 } , { 1, 1, 0 }, { 0, 0, 1 } }
+	{{ 1,0, 0} , { 2, 0, 0 }, { 2, 1, 0 } , { 2, 2, 0 }, { 0, 0, 1 } },
+	{{ 2,0, 0} , { 2, 1, 0 }, { 3, 1, 0 } , { 2, 3, 0 }, { 0, 0, 1 } },
+	{{ 3,1, 0} , { 2, 3, 0 }, { 4, 2, 0 } , { 4, 2, 0 }, { 0, 0, 1 } },
+	
 };
 
 void LEVEL_update()
@@ -432,12 +537,15 @@ void LEVEL_update()
 		emiter_cnt = 1;
 	}
 }
-
+extern struct actor_t* final_boss;
 void LEVEL_init(int level)
 {
   level_section = 0;
   level_counter = 0;
-  level_current = level;
+  level_current = level;  
   ACTOR_init(actor_pool);
+  final_boss = 0;
   PLAYER_init();
+  pal_change_to(1 + randi(2));
+  SOUND_play_song(1);
 }

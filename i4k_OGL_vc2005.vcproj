@@ -179,15 +179,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/CRINKLER /VERBOSE:FUNCTIONS /VERBOSE:IMPORTS /VERBOSE:LABELS /HASHTRIES:300 /COMPMODE:SLOW /ORDERTRIES:4000 /REPORT:report.html /PRINT:LABELS /PRINT:IMPORTS /PRINT:MODELS"
-				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib user32.lib gdi32.lib"
+				AdditionalDependencies="opengl32.lib glu32.lib winmm.lib user32.lib gdi32.lib src/snd/dx/lib/DXGUID.LIB src/snd/dx/lib/DINPUT.LIB"
 				OutputFile="exe/main_vc2005_rel.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				GenerateManifest="false"
-				IgnoreAllDefaultLibraries="true"
+				IgnoreAllDefaultLibraries="false"
 				SubSystem="2"
-				EntryPointSymbol="entrypoint"
+				EntryPointSymbol=""
 				BaseAddress=""
 				TargetMachine="1"
 			/>
@@ -246,7 +245,6 @@
 					>
 					<FileConfiguration
 						Name="Release|Win32"
-						ExcludedFromBuild="true"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -258,6 +256,14 @@
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -398,6 +404,10 @@
 					</File>
 					<File
 						RelativePath=".\src\snd\synth.h"
+						>
+					</File>
+					<File
+						RelativePath=".\src\snd\songs\wonder_raptors.h"
 						>
 					</File>
 					<File

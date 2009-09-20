@@ -2,7 +2,7 @@
 #include "synth.h"
 #include "math.h"
 
-#define EXPORT_TO_WAV
+//#define EXPORT_TO_WAV
 #ifdef EXPORT_TO_WAV
 #include <stdio.h>
 #endif
@@ -10,6 +10,7 @@
 
 #define PI 3.141516f
 #define TWOPI (2.0f*PI)
+#define clamp(x, a, b) ((x) < (a) ? (a) : (x) > (b) ? (b) : (x))
 
 
 #define  samples_per_note  5500

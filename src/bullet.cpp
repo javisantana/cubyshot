@@ -4,7 +4,7 @@
 
 float bullet_colors[2][4] = 
 { 
-			{ 0.3f, 0.3f, 0.3f, 0.4f} , //player
+			{ 0.0f, 0.3f, 0.0f, 0.4f} , //player
 			{ 0.8f, 0.0f, 0.0f, 0.3f}   // enemy
 };
 void BULLET_render(const actor* a)
@@ -18,6 +18,7 @@ void BULLET_render(const actor* a)
 	glColor4fv(bullet_colors[a->type - BULLET]);
 	cube_w();
 	glPopMatrix();
+	glColor4f(0.3f, 0.3f, 0.3f, 0.4f);
 }
 
 

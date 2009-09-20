@@ -153,7 +153,7 @@ void BOARD_render()
 	seed = 6;
 
 
-	set_pal_color(3, 0.4f);
+	set_pal_color(3, 0.3f);
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(-6.0f, 0.25f*board_y + board_pos[0], -15.0f);

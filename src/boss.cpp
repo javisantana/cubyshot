@@ -3,7 +3,9 @@
 #include "random_ship.h"
 #include "bullet.h"
 #include "particle.h"
+#include "snd/effects.h"
 
+struct actor_t* final_boss = 0;
 struct boss_timers_t
 {
 	int global;
@@ -20,14 +22,19 @@ enum { FIRE_RANDOM, FIRE_STAR };
 
 struct boss_timers_t boss_timers;
 /// final boss collision are managed in diferent way
-bool final_boss_collide(struct actor_t* a, struct actor_t* bullet)
+int final_boss_collide(struct actor_t* a, struct actor_t* bullet)
 {
 	if(SHIP_collide(a, bullet->pos))
 	{
 		a->life -= 0.001f;
-		return true;
+		if(a->life < 0.0f)
+		{
+			a->aux[2] = a->time;
+			return -1;
+		}
+		return 1;
 	}
-	return false;
+	return 0;
 }
 
 void boss_random_fire(struct actor_t* a, int n)
@@ -36,7 +43,7 @@ void boss_random_fire(struct actor_t* a, int n)
 		int last = 0;
 		for(int i = 0; i < s->w; ++i)
 		{
-			if(s->cells[i][last] > 0.0f)
+			if(i == s->gun_first || i == s->gun_last)
 			{
 				vec3f p;
 				SHIP_cell_pos(a, i, last, p);
@@ -45,8 +52,8 @@ void boss_random_fire(struct actor_t* a, int n)
 				{
 					vec3f vel;
 					float ang = -0.5f*PI - linear(-PI/2.0f, PI/2.0f, float(j)/float(n));
-					vel[0] = 20.0f*cosf(ang);
-					vel[1] = 20.0f*sinf(ang);
+					vel[0] = 15.0f*cosf(ang);
+					vel[1] = 15.0f*sinf(ang);
 					vel[2] = 0.0f;
 					BULLET_random_bullet(p,vel);
 				}
@@ -99,7 +106,7 @@ void final_boss_fire(struct actor_t* a)
 	{
 		boss_timers.burst = 2 + randi(12);
 		boss_timers.cburst = 0;
-		boss_timers.inter_burst = 2 + randi(30);
+		boss_timers.inter_burst = 15 + randi(30);
 		boss_timers.cinter_burst = boss_timers.inter_burst;
 		boss_timers.type = randi(2) == 0?FIRE_RANDOM: FIRE_STAR;
 
@@ -115,7 +122,7 @@ void final_boss_fire(struct actor_t* a)
 			switch(boss_timers.type)
 			{
 				case FIRE_RANDOM:
-					boss_random_fire(a,3 );
+					boss_random_fire(a,7);
 					break;
 				case FIRE_STAR:
 					boss_star_fire(a, 1.0f);
@@ -144,6 +151,9 @@ void final_boss_init(struct actor_t* a)
 	boss_timers.burst = 0;
 	boss_timers.inter_burst = 0;
 
+	final_boss = a;
+	a->life = 0.1f;
+
 	
 	
 }
@@ -151,14 +161,41 @@ void final_boss_init(struct actor_t* a)
 void final_boss_update(struct actor_t* a, float)
 {
 	a->ang += 40.0f*dt;
-	a->pos[2] -= a->pos[2]*0.07f;
+	
 	a->pos[0] = 10.0f*perlin2d(a->time*0.001f, a->time*0.001f)*sinf(a->time*0.4f);
 	a->pos[1] =  14.0f + 3.0f*sinf(a->time*0.4f);
 	a->ang = 5.0f*sinf(a->time);
 	MADD(a->pos, a->pos, dt, a->vel);
 	SHIP_update(a);
 	a->count++;
-	final_boss_fire(a);
+	if(a->life > 0.0f)
+	{
+		a->pos[2] -= a->pos[2]*0.07f;
+		final_boss_fire(a);
+	}
+	else
+	{
+		//falling and exploding
+		if(a->count%40)
+		{
+			vec3f p;
+			p[0] = linear(-0.5f*a->collide_size[0], 0.5f*a->collide_size[0], rand01());
+			p[1] = linear(-0.5f*a->collide_size[1], 0.5f*a->collide_size[1], rand01());
+			p[2] = 0;
+			VADD(p, a->pos, p);
+			PART_explosion(p, 8);
+			EFFECTS_medium_explosion();
+			
+		}
+		float dead_time = a->time-a->aux[2];
+		a->pos[2] -= dead_time*0.5f; //aux[2] contains dead time
+		if(a->pos[2] < -90.0f)
+		{
+			ACTOR_kill(a);
+			final_boss = 0;
+		}
+	}
+
 
 
 }

@@ -5,7 +5,6 @@
 
 
 
-#define clamp(x, a, b) ((x) < (a) ? (a) : (x) > (b) ? (b) : (x))
 
 typedef unsigned char uint8;
 typedef char int8;

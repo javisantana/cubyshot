@@ -24,6 +24,8 @@
 
 #include "menu.h"
 
+#include "palete.h"
+
 #include "snd/sound.h"
 #include "snd/effects.h"
 
@@ -33,6 +35,58 @@ int game_state = INTRO;
 int game_counter = 0;
 
 int input_delay = 0;
+
+int LEVEL_current = 0;
+
+void power_up_render(const actor* a)
+{
+	glPushMatrix();
+	glTranslatef(a->pos[0], a->pos[1], a->pos[2]);
+	glRotatef(a->ang, 1.0f, 0.0f, 1.0f);
+	int i = a->count/4;
+	float s = 1.0f + 0.4f*float(a->count%4)/4.0f;
+	glScalef(s, s, s);	
+	glColor4f(0.0f, 0.5f, 0.1f, 0.2f);
+	cube_w();
+	glScalef(1.1f, 1.1f, 1.1f);	
+	cube_w();
+	
+	glPopMatrix();
+}
+
+
+void power_up_update(actor* a, float dt)
+{
+	MADD(a->pos, a->pos, dt, a->vel);
+	a->ang += 20.0f*dt;
+	a->count++;
+}
+
+void power_up_launch(vec3f pos)
+{
+
+	actor* a = ACTOR_get(actor_pool);
+			
+	a->pos[0] = pos[0];
+	a->pos[1] = pos[1];
+	a->pos[2] = 0.0f;
+
+	float d = rand01()*2*PI;
+	a->vel[0] = 6.0f*cosf(d);//randf()*4.0f;
+	a->vel[1] =  6.0f*sinf(d);
+	a->vel[2] = 0.0f;
+
+	a->ang = 0.0;	
+	a->collide_size[0] = 1.0f;
+	a->collide_size[1] = 1.0f;	
+	a->type = POWER_UP;
+
+	a->update = power_up_update;
+	a->render = power_up_render;
+
+	
+
+}
 
 void test_calculate_boss()
 {	
@@ -53,6 +107,7 @@ void check_collisions()
 	
 	int i;
 	int j;
+	
 	//remove bullets 
 	for(i = 0; i < MAX_ACTOR; ++i)
 	{
@@ -75,17 +130,38 @@ void check_collisions()
 					actor* b = &actor_pool[j];				
 					if(IS_ACTIVE(b) && !(b->flags & F_BULLET))
 					{
-						if(b->type ==  SHIP_FINAL_BOSS)
+						if(b->type ==  SHIP_FINAL_BOSS && game_state != INTER_LEVEL)
 						{
+								int c = final_boss_collide(b, a);
 								//PART_damage(b->pos);
-								if(final_boss_collide(b, a))
+								if(c)
 								{
 									ACTOR_kill(a);
-								}
+									pj_score += 30;
+									if(c < 0)
+									{
+										pj_score += 10000;
+										MENU_show();
+										game_state = INTER_LEVEL;
+										SOUND_play_song(0);
+									}
+								} 
 						} else						// player bullets
 						if(ACTOR_collide(b, a->pos))
 						{
-							if( b->type == SHIP_MEDIUM)
+							if(b->type == POWER_UP && b->count > 15)
+							{	
+								ACTOR_kill(b);
+								PART_explosion(b->pos);
+								EFFECTS_small_explosion();
+								pj_fire_count++;
+								if(pj_fire_count >= 4)
+								{
+									pj_life += 0.11f;
+								}
+								pj_score += 100;
+							}
+							else if( b->type == SHIP_MEDIUM)
 							{								
 								if(rand01() < 0.01)
 								{
@@ -109,12 +185,18 @@ void check_collisions()
 									ACTOR_kill(b);
 									EFFECTS_medium_explosion();
 								}
+								pj_score += 300;
 							}
 							else if(b->type ==  SHIP_SMALL)
 							{
 								ACTOR_kill(b);
 								PART_explosion(b->pos);
 								EFFECTS_small_explosion();
+								if(rand01() < 0.01f)
+								{
+									power_up_launch(b->pos);
+								}
+								pj_score += 100;
 							}
 							
 							//kill bullet
@@ -129,7 +211,7 @@ void check_collisions()
 			} 
 			else if(a->flags & F_COLLIDE_PLAYER)
 			{
-				if(game_state == INTRO) //hack
+				if(game_state == INTRO || game_state == DEAD) //hack
 					return; 
 				vec3f margin;
 				VMOV3(margin, 1.5f, 3.0f, 1.0f);
@@ -138,6 +220,13 @@ void check_collisions()
 					pj_life -= 0.21f;
 					PART_explosion(pj_pos);
 					ACTOR_kill(a);
+
+					if(pj_life < 0.0f)
+					{
+						MENU_show();
+						game_state = DEAD;
+					
+					}
 				}
 			}
 		}
@@ -156,9 +245,14 @@ void input()
 		if(GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_RETURN))
 		{
 				MENU_show();
-				if(game_state == INTRO)
+				if(game_state == INTRO )
 				{
-					
+					LEVEL_current = 1;
+					LEVEL_init(1);					
+					game_state = GAME;
+				}
+				else if (game_state == DEAD)
+				{
 					LEVEL_init(1);
 					game_state = GAME;
 				}
@@ -166,8 +260,13 @@ void input()
 				{
 					game_state = PAUSE;
 				} 
-				else 
+				else if(game_state == PAUSE)
 				{
+					game_state = GAME;
+				} 
+				else if(game_state == INTER_LEVEL)
+				{
+					LEVEL_init(++LEVEL_current);
 					game_state = GAME;
 				}
 				
@@ -199,12 +298,15 @@ void update()
 	
 	if(game_state == PAUSE)
 		return;
-	PLAYER_update();
+	if (game_state != DEAD && game_state != INTER_LEVEL )
+		PLAYER_update();
 	LEVEL_update();
 	ACTOR_update(actor_pool, dt);	
 	ACTOR_update(particle_pool, dt);
 	BOARD_update();	
-	check_collisions();
+	if(game_state != INTER_LEVEL)
+		check_collisions();
+	pal_update();
 
 	if(game_state == INTRO)
 	{
@@ -231,7 +333,7 @@ void render()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0.0f, 0.0f, 0.0f, 0.1f);
 	BOARD_render();
-	if(game_state != INTRO)
+	if(game_state != INTRO && game_state != DEAD)
 		PLAYER_render();
 
 	ACTOR_render(actor_pool);
@@ -274,7 +376,7 @@ void intro_init( void )
 void sound_precache()
 {
 	EFFECTS_init();
-	//SOUND_play_song(0);
+	SOUND_play_song(0);
 }
 
 
@@ -287,8 +389,6 @@ void intro_do( long itime )
 	input();
 	while((t1 - t0) > DT )
 	{
-
-   		
 		update();
 		MENU_update();		
 		

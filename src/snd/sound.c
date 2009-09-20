@@ -7,6 +7,7 @@
 #include "dx/DSOUND.h"
 
 #include "songs/wonder_recycled.h"
+#include "songs/wonder_raptors.h"
 #define USEMEMLOAD
 
 
@@ -77,15 +78,24 @@ unsigned int memopen(char *name)
 	{	// hey look some load from resource code!
 //		HRSRC		rec;
 //		HGLOBAL		handle;
-	//	int mapper[] = { IDR_XMFILE1,IDR_XMFILE2,IDR_XMFILE3};
+		unsigned char* mapper[] = { wonder_recycled,wonder_raptors};
 	//	rec = FindResource(NULL, MAKEINTRESOURCE(IDR_XMFILE2), "XMFILE");
 	//	rec = FindResource(NULL, name, "XMFILE");
 //		rec = FindResource(NULL, MAKEINTRESOURCE(mapper[g_MusicIndex]), "XMFILE");
 //		handle = LoadResource(NULL, rec);
 		
-		memfile->data = wonder_recycled;
-		memfile->length = sizeof(wonder_recycled);
 		memfile->pos = 0;
+		if(g_MusicIndex  == 0)
+		{
+			memfile->data = wonder_recycled;
+			memfile->length = sizeof(wonder_recycled);
+		
+		} 
+		else
+		{
+			memfile->data = wonder_raptors;
+			memfile->length = sizeof(wonder_raptors);
+		}
 	}
 #endif
 
