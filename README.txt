@@ -21,6 +21,8 @@ code:  javisantana http://javisantana.com
 
 The license is the same that quake1src (GPL) due to i ripped DirectSound inicialization from it. Please see atached file gnu.txt. You can download quake1src from IDsoftware ftp.
 
+source: http://github.com/javisantana/cubyshot
+
 == greets and credtis ==
 
 - iq, thanks for publish demo systems: http://iquilezles.org/www/material/isystem1k4k/isystem1k4k.htm and 
