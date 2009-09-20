@@ -66,7 +66,7 @@ void MENU_render()
 	{
 		font_printf_guay(-menu_x-board_x*0.14f - 10.0f,3.3f,-4.f,4.3f,"LEVEL");
 		font_printf_guay(-menu_x-board_x*0.14f - 10.0f,-1.3f,-4.f,4.3f,"COMPLETED");
-		font_printf_guay(-menu_x-board_x*0.14f - 10.0f,-5.8f,-4.f,1.8f,"press fire button to next level");
+		font_printf_guay(-menu_x-board_x*0.14f - 10.0f,-5.8f,-4.f,1.8f,"press enter to next level");
 	
 	}
 

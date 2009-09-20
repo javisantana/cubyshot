@@ -249,12 +249,14 @@ void input()
 				{
 					MENU_show();
 					LEVEL_current = 1;
+					pj_score  = 0;
 					LEVEL_init(1);					
 					game_state = GAME;
 				}
 				else if (game_state == DEAD)
 				{
 					MENU_show();
+					pj_score  = 0;
 					LEVEL_init(1);
 					game_state = GAME;
 				}
@@ -263,12 +265,7 @@ void input()
 					MENU_show();
 					game_state = GAME;
 				} 
-				else if(game_state == INTER_LEVEL)
-				{
-					MENU_show();
-					LEVEL_init(++LEVEL_current);
-					game_state = GAME;
-				}
+				
 				
 		}
 		if(GetAsyncKeyState(VK_ESCAPE) || GetAsyncKeyState(VK_RETURN))
@@ -284,8 +281,15 @@ void input()
 					MENU_show();
 					game_state = GAME;
 			} 
+			else if(game_state == INTER_LEVEL)
+			{
+					MENU_show();
+					LEVEL_init(++LEVEL_current);
+					game_state = GAME;
+			}
 		}
-		input_delay = 10;
+		input_delay = 20;
+		
 	}
 	input_delay--;
 

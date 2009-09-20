@@ -16,7 +16,7 @@ int pj_fire_cnt = 0;
 int pj_engine_smoke = 0;
 float pj_angle = 0.0f;
 float pj_ang = 0.0f;
-int pj_score;
+int pj_score = 0;
 
 int pj_fire_count = 2;
 const int PJ_FIRE_RATE = 4;
@@ -61,7 +61,7 @@ void PLAYER_render()
 void PLAYER_init()
 {
 	pj_life = 1.0f;
-	pj_score  = 0;
+	
 }
 
 void PLAYER_kill()

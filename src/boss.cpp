@@ -152,7 +152,7 @@ void final_boss_init(struct actor_t* a)
 	boss_timers.inter_burst = 0;
 
 	final_boss = a;
-	a->life = 0.1f;
+	a->life = 1.1f;
 
 	
 	

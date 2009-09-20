@@ -1,5 +1,9 @@
 === Cubyshoot ===
 
+== installation ==
+cubyshot doesn't require installation, just run cubyshot.exe.
+IMPORTANT NOTE: due to compressión techniques it's possible that some antivirus software alert about virus. 
+
 == how to play ==
 
 execute cubyshot.exe and kill all enemy ships
